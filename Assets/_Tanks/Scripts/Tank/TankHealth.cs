@@ -41,6 +41,22 @@ namespace Tanks.Complete
             m_ShieldValue = 0;
             m_IsInvincible = false;
 
+
+
+            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+
+                for (int j = 0; j < renderer.materials.Length; ++j)
+                {
+                    if (renderer.materials[j].name.Contains("Danger"))
+                    {
+                        renderer.materials[j].SetFloat("_isLowLife", 0);
+                    }
+                }            
+            }
+
             // Update the health slider's value and color.
             SetHealthUI();
         }
@@ -77,9 +93,13 @@ namespace Tanks.Complete
             for (int i = 0; i < renderers.Length; i++)
             {
                 var renderer = renderers[i];
-                if (renderer.material.name.Contains("Danger"))
+
+                for (int j = 0; j < renderer.materials.Length; ++j)
                 {
-                    renderer.material.SetFloat("_isLowLife", 1);
+                    if (renderer.materials[j].name.Contains("Danger"))
+                    {
+                        renderer.materials[j].SetFloat("_isLowLife", 1);
+                    }
                 }
             }
         }
@@ -140,15 +160,6 @@ namespace Tanks.Complete
             // Set the flag so that this function is only called once.
             m_Dead = true;
 
-            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                var renderer = renderers[i];
-                if (renderer.material.name.Contains("Danger"))
-                {
-                    renderer.material.SetFloat("_isLowLife", 0);
-                }
-            }
             // Turn the tank off.
             gameObject.SetActive (false);
         }
