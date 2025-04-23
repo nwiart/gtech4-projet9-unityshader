@@ -122,6 +122,7 @@ namespace Tanks.Complete
 
         private void OnDeath ()
         {
+            SpawnParticles();
             // Set the flag so that this function is only called once.
             m_Dead = true;
 
@@ -131,6 +132,11 @@ namespace Tanks.Complete
                 var renderer = renderers[i];
                 StartCoroutine(Dissolve(renderer));
             }
+        }
+
+        private void SpawnParticles()
+        {
+            Instantiate(m_ExplosionPrefab, transform.position, Quaternion.identity);
         }
 
         IEnumerator Dissolve(Renderer renderer)
@@ -158,7 +164,7 @@ namespace Tanks.Complete
             CheckRunningCoroutine();
         }
 
-        void CheckRunningCoroutine()
+        private void CheckRunningCoroutine()
         {
             if (m_RunningCoroutines == 0) gameObject.SetActive(false);
         }
