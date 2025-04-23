@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 namespace Tanks.Complete
 {
@@ -12,8 +13,6 @@ namespace Tanks.Complete
         public Color m_ZeroHealthColor = Color.red;      // The color the health bar will be when on no health.
         public GameObject m_ExplosionPrefab;                // A prefab that will be instantiated in Awake, then used whenever the tank dies.
         public GameObject m_TankBody;
-        public Material m_FullHealthMat;
-        public Material m_LowHealthMat;
         [HideInInspector] public bool m_HasShield;          // Has the tank picked up a shield power up?
         
         
@@ -22,7 +21,6 @@ namespace Tanks.Complete
         private bool m_Dead;                                // Has the tank been reduced beyond zero health yet?
         private float m_ShieldValue;                        // Percentage of reduced damage when the tank has a shield.
         private bool m_IsInvincible;                        // Is the tank invincible in this moment?
-        private Material m_OriginalMaterial;
 
         private void Awake ()
         {
@@ -59,26 +57,31 @@ namespace Tanks.Complete
                 // Change the UI elements appropriately.
                 SetHealthUI ();
 
-                if (m_CurrentHealth <= m_StartingHealth * .3f && !m_Dead)
-                {
-                    LowLife();
-                }
 
                 // If the current health is at or below zero and it has not yet been registered, call OnDeath.
                 if (m_CurrentHealth <= 0f && !m_Dead)
                 {
                     OnDeath ();
                 }
+
+                if (m_CurrentHealth <= m_StartingHealth * .3f && !m_Dead)
+                {
+                    LowLife();
+                }
             }
         }
 
         void LowLife()
         {
-            Debug.Log("low");
-            var r = m_TankBody.GetComponent<Renderer>();
-            m_OriginalMaterial = r.material;
-            r.material = m_LowHealthMat;
-            r.material.SetFloat("_isLowLife", 1);
+            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                if (renderer.material.name.Contains("Danger"))
+                {
+                    renderer.material.SetFloat("_isLowLife", 1);
+                }
+            }
         }
 
         public void IncreaseHealth(float amount)
@@ -137,7 +140,15 @@ namespace Tanks.Complete
             // Set the flag so that this function is only called once.
             m_Dead = true;
 
-            m_TankBody.GetComponent<Renderer>().material = m_FullHealthMat;
+            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                if (renderer.material.name.Contains("Danger"))
+                {
+                    renderer.material.SetFloat("_isLowLife", 0);
+                }
+            }
             // Turn the tank off.
             gameObject.SetActive (false);
         }
