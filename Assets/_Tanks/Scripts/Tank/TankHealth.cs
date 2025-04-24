@@ -20,6 +20,8 @@ namespace Tanks.Complete
         private float m_ShieldValue;                        // Percentage of reduced damage when the tank has a shield.
         private bool m_IsInvincible;                        // Is the tank invincible in this moment?
 
+        public float Health { get => m_CurrentHealth; }
+
         private void Awake ()
         {
             // Set the slider max value to the max health the tank can have

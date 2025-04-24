@@ -17,8 +17,8 @@ Shader "Hidden/Custom/Grayscale"
 			{
 				float4 color = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, v.texcoord.xy);
 
-				float vignetteBias = length(v.texcoord.xy * 2 - 1) * 0.5;
-				color.rgb = lerp(color.rgb, float3(0,0,0), vignetteBias);
+				float vignetteBias = length(v.texcoord.xy * 2 - 1) * _intensity;
+				color.rgb = lerp(color.rgb, float3(1,0,0), vignetteBias);
 
 				return color;
 			}

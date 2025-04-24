@@ -50,6 +50,8 @@ namespace Tanks.Complete
         private int m_PlayerCount = 0;              // The number of players (2 to 4), decided from the number of PlayerData passed by the menu
         private TextMeshProUGUI m_TitleText;        // The text used to display game message. Automatically found as part of the Menu prefab
 
+        public Material m_vignetteMaterial;
+
         private void Start()
         {
             m_CurrentState = GameState.MainMenu;
@@ -216,6 +218,21 @@ namespace Tanks.Complete
             // While there is not one tank left...
             while (!OneTankLeft())
             {
+                bool lowhp = false;
+				for (int i = 0; i < m_PlayerCount; i++)
+                {
+                    if (m_SpawnPoints[i].m_Instance.GetComponent<TankHealth>().Health <= 60)
+                    {
+                        lowhp = true;
+                        break;
+                    }
+                }
+
+				if (lowhp)
+                {
+                    m_vignetteMaterial.SetFloat("_intensity", 0.1F);
+				}
+
                 // ... return on the next frame.
                 yield return null;
             }

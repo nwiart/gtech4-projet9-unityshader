@@ -13,7 +13,6 @@ public sealed class PostTest : MonoBehaviour
 
 	public void OnRenderImage(RenderTexture source, RenderTexture destination)
 	{
-		Debug.Log("ihv");
 		Graphics.Blit(source, destination, mat);
 	}
 }
