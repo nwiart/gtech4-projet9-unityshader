@@ -51,8 +51,11 @@ namespace Tanks.Complete
         private TextMeshProUGUI m_TitleText;        // The text used to display game message. Automatically found as part of the Menu prefab
 
         public Material m_vignetteMaterial;
+		public Material m_fisheyeMaterial;
+        private float m_fisheyeIntensity = 0.0F;
+        private int lastTanksLeft = 0;
 
-        private void Start()
+		private void Start()
         {
             m_CurrentState = GameState.MainMenu;
 
@@ -133,6 +136,7 @@ namespace Tanks.Complete
                 m_SpawnPoints[i].m_PlayerColor = playerData.TankColor;
                 m_SpawnPoints[i].m_ComputerControlled = playerData.IsComputer;
             }
+            lastTanksLeft = m_PlayerCount;
 
             //we delayed setup after all tanks are created as they expect to have access to all other tanks in the manager
             foreach (var tank in m_SpawnPoints)
@@ -218,6 +222,7 @@ namespace Tanks.Complete
             // While there is not one tank left...
             while (!OneTankLeft())
             {
+                // Low HP vignette.
                 bool lowhp = false;
 				for (int i = 0; i < m_PlayerCount; i++)
                 {
@@ -230,8 +235,24 @@ namespace Tanks.Complete
 
                 m_vignetteMaterial.SetFloat("_intensity", lowhp ? 0.1F : 0.0F);
 
-                // ... return on the next frame.
-                yield return null;
+                // Fish eye distortion on death.
+                int n = NumTanksAlive();
+				if (lastTanksLeft != n)
+                {
+                    m_fisheyeIntensity = 0.036F;
+                    lastTanksLeft = n;
+                }
+
+                m_fisheyeIntensity -= 0.06F * Time.deltaTime;
+                if (m_fisheyeIntensity < 0)
+                {
+                    m_fisheyeIntensity = 0;
+                }
+
+				m_fisheyeMaterial.SetFloat("_intensity", m_fisheyeIntensity);
+
+				// ... return on the next frame.
+				yield return null;
             }
         }
 
@@ -263,22 +284,43 @@ namespace Tanks.Complete
         }
 
 
-        // This is used to check if there is one or fewer tanks remaining and thus the round should end.
-        private bool OneTankLeft()
+		private int NumTanksAlive()
+		{
+			// Start the count of tanks left at zero.
+			int numTanksLeft = 0;
+
+			// Go through all the tanks...
+			for (int i = 0; i < m_PlayerCount; i++)
+			{
+				// ... and if they are active, increment the counter.
+				if (m_SpawnPoints[i].m_Instance.GetComponent<TankHealth>().Health > 0)
+					numTanksLeft++;
+			}
+
+			return numTanksLeft;
+		}
+
+		private int NumTanksLeft()
+		{
+			// Start the count of tanks left at zero.
+			int numTanksLeft = 0;
+
+			// Go through all the tanks...
+			for (int i = 0; i < m_PlayerCount; i++)
+			{
+				// ... and if they are active, increment the counter.
+				if (m_SpawnPoints[i].m_Instance.activeSelf)
+					numTanksLeft++;
+			}
+
+            return numTanksLeft;
+		}
+
+		// This is used to check if there is one or fewer tanks remaining and thus the round should end.
+		private bool OneTankLeft()
         {
-            // Start the count of tanks left at zero.
-            int numTanksLeft = 0;
-
-            // Go through all the tanks...
-            for (int i = 0; i < m_PlayerCount; i++)
-            {
-                // ... and if they are active, increment the counter.
-                if (m_SpawnPoints[i].m_Instance.activeSelf)
-                    numTanksLeft++;
-            }
-
             // If there are one or fewer tanks remaining return true, otherwise return false.
-            return numTanksLeft <= 1;
+            return NumTanksLeft() <= 1;
         }
         
         
