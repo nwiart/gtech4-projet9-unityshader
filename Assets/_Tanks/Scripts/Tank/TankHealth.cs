@@ -26,6 +26,8 @@ namespace Tanks.Complete
         private bool m_IsInvincible;                        // Is the tank invincible in this moment?
         private int m_RunningCoroutines = 0;
 
+        public float Health { get => m_CurrentHealth; }
+
         private void Awake ()
         {
             // Set the slider max value to the max health the tank can have
