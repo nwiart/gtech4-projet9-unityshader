@@ -28,6 +28,7 @@ namespace Tanks.Complete
         public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
         public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
         public CameraControl m_CameraControl;       // Reference to the CameraControl script for control during different phases.
+        public Material m_SpawnMat;
 
         [Header("Tanks Prefabs")]
         public GameObject m_Tank1Prefab;            // The Prefab used by the tank in Slot 1 of the Menu
@@ -197,6 +198,10 @@ namespace Tanks.Complete
         {
             // As soon as the round starts reset the tanks and make sure they can't move.
             ResetAllTanks ();
+            for (int i = 0; i < m_PlayerCount; i++)
+            {
+                StartSpawning(m_SpawnPoints[i].m_Instance);
+            }
             DisableTankControl ();
 
             // Snap the camera's zoom and position to something appropriate for the reset tanks.
@@ -409,6 +414,38 @@ namespace Tanks.Complete
             {
                 m_SpawnPoints[i].DisableControl();
             }
+        }
+
+        public void StartSpawning(GameObject m_TankBody)
+        {
+            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                StartCoroutine(Spawn(renderer));
+            }
+        }
+
+        IEnumerator Spawn(Renderer renderer)
+        {
+            Material tempMat = renderer.material;
+
+            renderer.material = m_SpawnMat;
+
+            float elapsedTime = 0;
+            float spawnDuration = 2f;
+
+            while (elapsedTime < spawnDuration)
+            {
+                elapsedTime += Time.deltaTime;
+
+                float visibility = Mathf.Lerp(0, 2, elapsedTime / spawnDuration);
+                renderer.material.SetFloat("_Visibility", visibility);
+
+                yield return null;
+            }
+            renderer.material.SetFloat("_Visibility", 0);
+            renderer.material = tempMat;
         }
     }
 }
