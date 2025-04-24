@@ -154,7 +154,16 @@ namespace Tanks.Complete
                     }
                 }
             }
-            
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                TrailRenderer[] trails = renderers[i].GetComponentsInChildren<TrailRenderer>();
+                for (int j = 0;j < trails.Length; ++j)
+                {
+                    trails[j].enabled = false;
+                }
+            }
+
             //Disable all audio
             var audioSource = TankPreview.GetComponentsInChildren<AudioSource>();
             foreach (var source in audioSource)

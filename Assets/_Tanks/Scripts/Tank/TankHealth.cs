@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using JetBrains.Annotations;
+using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
@@ -13,6 +15,7 @@ namespace Tanks.Complete
         public Color m_ZeroHealthColor = Color.red;      // The color the health bar will be when on no health.
         public GameObject m_ExplosionPrefab;                // A prefab that will be instantiated in Awake, then used whenever the tank dies.
         public GameObject m_TankBody;
+        public Material m_DeathMat;
         [HideInInspector] public bool m_HasShield;          // Has the tank picked up a shield power up?
         
         
@@ -21,6 +24,7 @@ namespace Tanks.Complete
         private bool m_Dead;                                // Has the tank been reduced beyond zero health yet?
         private float m_ShieldValue;                        // Percentage of reduced damage when the tank has a shield.
         private bool m_IsInvincible;                        // Is the tank invincible in this moment?
+        private int m_RunningCoroutines = 0;
 
         private void Awake ()
         {
@@ -154,14 +158,53 @@ namespace Tanks.Complete
             m_FillImage.color = Color.Lerp (m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
         }
 
-
         private void OnDeath ()
         {
+            SpawnParticles();
             // Set the flag so that this function is only called once.
             m_Dead = true;
 
-            // Turn the tank off.
-            gameObject.SetActive (false);
+            Renderer[] renderers = m_TankBody.GetComponentsInChildren<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                StartCoroutine(Dissolve(renderer));
+            }
+        }
+
+        private void SpawnParticles()
+        {
+            Instantiate(m_ExplosionPrefab, transform.position, Quaternion.identity);
+        }
+
+        IEnumerator Dissolve(Renderer renderer)
+        {
+            m_RunningCoroutines += 1;
+            Material tempMat = renderer.material;
+
+            renderer.material = m_DeathMat;
+            renderer.material.SetFloat("_IsDead", 1);
+
+            float elapsedTime = 0;
+            float dissolveDuration = 2f;
+
+            while (elapsedTime < dissolveDuration)
+            {
+                elapsedTime += Time.deltaTime;
+
+                float alphaThreshold = Mathf.Lerp(0, 1, elapsedTime / dissolveDuration);
+                renderer.material.SetFloat("_AlphaThreshold", alphaThreshold);
+
+                yield return null;
+            }
+            renderer.material = tempMat;
+            m_RunningCoroutines -= 1;
+            CheckRunningCoroutine();
+        }
+
+        private void CheckRunningCoroutine()
+        {
+            if (m_RunningCoroutines == 0) gameObject.SetActive(false);
         }
     }
 }
