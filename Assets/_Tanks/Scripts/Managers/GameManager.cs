@@ -228,10 +228,7 @@ namespace Tanks.Complete
                     }
                 }
 
-				if (lowhp)
-                {
-                    m_vignetteMaterial.SetFloat("_intensity", 0.1F);
-				}
+                m_vignetteMaterial.SetFloat("_intensity", lowhp ? 0.1F : 0.0F);
 
                 // ... return on the next frame.
                 yield return null;
