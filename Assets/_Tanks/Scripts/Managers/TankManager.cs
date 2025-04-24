@@ -76,7 +76,7 @@ namespace Tanks.Complete
                 var renderer = renderers[i];
                 for (int j = 0; j < renderer.materials.Length; ++j)
                 {
-                    if (renderer.materials[j].name.Contains("Danger"))
+                    if (renderer.materials[j].name.Contains("TankColor"))
                     {
                         renderer.materials[j].SetColor("_BaseColor", m_PlayerColor);
                     }

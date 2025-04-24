@@ -54,7 +54,7 @@ namespace Tanks.Complete
 
                 for (int j = 0; j < renderer.materials.Length; ++j)
                 {
-                    if (renderer.materials[j].name.Contains("Danger"))
+                    if (renderer.materials[j].name.Contains("TankColor"))
                     {
                         renderer.materials[j].SetFloat("_isLowLife", 0);
                     }
@@ -100,7 +100,7 @@ namespace Tanks.Complete
 
                 for (int j = 0; j < renderer.materials.Length; ++j)
                 {
-                    if (renderer.materials[j].name.Contains("Danger"))
+                    if (renderer.materials[j].name.Contains("TankColor"))
                     {
                         renderer.materials[j].SetFloat("_isLowLife", 1);
                     }

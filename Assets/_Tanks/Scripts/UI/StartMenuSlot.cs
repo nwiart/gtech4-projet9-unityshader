@@ -147,7 +147,7 @@ namespace Tanks.Complete
                 for (int j = 0; j < renderer.materials.Length; ++j)
                 {
                     // then when we find the TankColor material
-                    if (renderer.materials[j].name.Contains("Danger"))
+                    if (renderer.materials[j].name.Contains("TankColor"))
                     {
                         // Set its color to the slot color
                         renderer.materials[j].SetColor("_BaseColor", m_SlotColor);
