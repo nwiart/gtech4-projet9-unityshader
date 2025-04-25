@@ -12,6 +12,8 @@ namespace Tanks.Complete
         [HideInInspector] public float m_ExplosionForce = 1000f;              // The amount of force added to a tank at the centre of the explosion.
         [HideInInspector] public float m_ExplosionRadius = 5f;                // The maximum distance away from the explosion tanks can be and are still affected.
 
+        [SerializeField] public GameObject m_particleExplosion;
+
 
         private void Start ()
         {
@@ -52,8 +54,12 @@ namespace Tanks.Complete
                 targetHealth.TakeDamage (damage);
             }
 
-            // Destroy the shell.
-            Destroy (gameObject);
+            GameObject boom = Instantiate(m_particleExplosion, transform.position, Quaternion.identity);
+            boom.GetComponent<ParticleSystem>().Play();
+			Destroy(boom, 1.0F);
+
+			// Destroy the shell.
+			Destroy (gameObject);
         }
 
 
