@@ -428,9 +428,14 @@ namespace Tanks.Complete
 
         IEnumerator Spawn(Renderer renderer)
         {
-            Material tempMat = renderer.material;
+            Material[] tempMats = renderer.materials;
 
-            renderer.material = m_SpawnMat;
+            Material[] copy = renderer.materials;
+            for (int i = 0; i < copy.Length; i++)
+            {
+                copy[i] = m_SpawnMat;
+            }
+            renderer.materials = copy;
 
             float elapsedTime = 0;
             float spawnDuration = 2f;
@@ -440,12 +445,19 @@ namespace Tanks.Complete
                 elapsedTime += Time.deltaTime;
 
                 float visibility = Mathf.Lerp(0, 2, elapsedTime / spawnDuration);
-                renderer.material.SetFloat("_Visibility", visibility);
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    renderer.materials[i].SetFloat("_Visibility", visibility);
+                }
 
                 yield return null;
             }
-            renderer.material.SetFloat("_Visibility", 0);
-            renderer.material = tempMat;
+            for (int i = 0; i < renderer.materials.Length; i++)
+            {
+                renderer.materials[i].SetFloat("_Visibility", 0);
+            }
+
+            renderer.materials = tempMats;
         }
     }
 }

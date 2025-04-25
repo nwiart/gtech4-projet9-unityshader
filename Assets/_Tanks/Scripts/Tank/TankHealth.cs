@@ -181,10 +181,19 @@ namespace Tanks.Complete
         IEnumerator Dissolve(Renderer renderer)
         {
             m_RunningCoroutines += 1;
-            Material tempMat = renderer.material;
 
-            renderer.material = m_DeathMat;
-            renderer.material.SetFloat("_IsDead", 1);
+            Material[] tempMats = renderer.materials;
+
+            Material[] copy = renderer.materials;
+            for (int i = 0; i < copy.Length; i++)
+            {
+                copy[i] = m_DeathMat;
+                copy[i].SetFloat("_IsDead", 1);
+            }
+            renderer.materials = copy;
+
+            //renderer.material = m_DeathMat;
+            //renderer.material.SetFloat("_IsDead", 1);
 
             float elapsedTime = 0;
             float dissolveDuration = 2f;
@@ -194,11 +203,14 @@ namespace Tanks.Complete
                 elapsedTime += Time.deltaTime;
 
                 float alphaThreshold = Mathf.Lerp(0, 1, elapsedTime / dissolveDuration);
-                renderer.material.SetFloat("_AlphaThreshold", alphaThreshold);
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    renderer.materials[i].SetFloat("_AlphaThreshold", alphaThreshold);
+                }
 
                 yield return null;
             }
-            renderer.material = tempMat;
+            renderer.materials = tempMats;
             m_RunningCoroutines -= 1;
             CheckRunningCoroutine();
         }
